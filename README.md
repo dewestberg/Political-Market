@@ -1,2 +1,2 @@
-# Applied-Regression
+# Political Market
 Course Data Page
