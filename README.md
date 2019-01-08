@@ -1,2 +1,2 @@
 # Political Market
-Course Data Page
+Data Page
