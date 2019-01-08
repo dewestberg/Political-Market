@@ -1,0 +1,411 @@
+---
+title: "Setting up the PMF Utility Function"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+We are telling a story about political benefits, what some may reasonably consider political value. Consequently, we will be discussing this entire choice situation under risk as a political value maximization problem. We illustrate the properties of this political value function below in Figure 2.
+
+Equation [1] below illustrates the basic form of this political value function. Our public offical will be deciding ho much to spend on public goods (x) that maximizes her political value.  The function is described by two parameters: $\alpha$ and $\beta$. 
+
+begin{equation}
+PV(x) = \frac{1}{\beta} x^{1 - \alpha}
+end{equation}
+
+The macro-contextual risk is conceptualized by $\alpha$. As $\alpha$ rises, the degree of risk aversion of the specific public official increases. Meaning they are less likely to take a free bet; instead, they are willing to pay higher and higher risks to avoid having to take the fair bet. 
+
+```{r, echo = F}
+
+#Is Risk Aversion Decreasing? Why yes it is. So, our model exhibits DARA and CRRA.
+
+x1 <- function(x) (1-0.75)/x
+x2 <- function(x) (1-0.25)/x
+x3 <- function(x) (1 - 1.25)/x
+
+x<-seq(0,1,0.01)
+par(xpd=T, mar=par()$mar+c(0,0,0,5))
+matplot(x,cbind(x1(x), x2(x), x3(x)),col=c("blue","red","black"), main = "Figure 1: The role of Absolute Risk Aversion", ylab = "Utility", xlab = "Expected Payoff from \nExternal Production (x)", type = "l")
+legend(2.05,0.8, c("\nCM\n", "\nMayor_1\n", "\nMayor_2"), lty=c(1,2), lwd=c(2,2), col=c("blue","red","black"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+
+
+Figure 1 makes visually clear that this utility function exhibits Decreasing Absolute Risk Aversion (DARA). It simply means that as wealth/income/resources increase, our investor/consumer becomes less risk averse. It **does not mean** that the investor/consumer is risk loving. Hence, the objective function should be concave. The justification for this property is straightforward. Larger cities have many more public investments in place that can act to spread the risk of any one venture. In a sense, when an investor has a large and diversified portfolio any additional investment - even a risky one - represents a much smaller overall risk. 
+
+We visualize this political value function below in Figure 2. 
+```{r, echo = F}
+par(mar=par()$mar+c(0,0,2,5.5))
+
+
+#Manager
+curve( (1/0.6)*x^(1-.25) , from = 0, to = 3, n = 100, type = "l",  col = "blue", lty = 1, main = "Figure 1: The Political Value of Providing Public Goods", ylab = "Political Value", xlab = "Spending on Public Goods")
+
+#Mayor
+curve( (1/0.6)*x^(1-.75) , from = 0, to = 3, n = 100, type = "l",  col = "red", lty = 2, add = TRUE)
+
+curve( x^1 , from = 0, to = 3, n = 100, type = "l",  col = "black", lty = 3, add = TRUE)
+
+
+legend(3.05, 3.5, c("Mayor\n", "Manager", "CARA"), lty=c(2,1,3), lwd=c(2,2,2), col=c("red", "blue", "black"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+Our political value function is shaped by two parameters; $\alpha$ and $\beta$. $\alpha$ represents the degree of absolute risk aversion (ARA) that is shaping a particular actor's political value function. The relative risk of a particular good or service though is represented by $1/\beta$. Here, the overall parameter magnifies or modifies the amount of spending (x) on public goods produced internally.As $1/\beta$ increases, the benefits from risk are seemingly amplified. More spending on public goods leads to more political value.
+
+Figure 2 also indicates the focus of thi analysis. We seek to articulate the power of the structural forces that ultimately shape the provisioning decision. As $\alpha$ grows, this indicates that absolute risk aversion is increasing. We argue below that $\alpha$ is exacerbated (and largely driven) by politicalinstitutions that aggregate preferences. Communities that elect council members at large, organize said elections around political parties, and have a mayor-council form of government will be environments of substantial political risk. We start with the form of government distinction. A city with a Mayor-Council form of government will be an inherently riskier environment. As the electoral incentives kick in, the gap between Mayor and Manager cities should get wider. Agents in these high-risk communities will become increasingly risk averse. We expect the risk context to have substantive effects on the contracting decsisions of local government.
+
+Figure 3 below illustrates the power of the political context. Here we extend the objective function to a two-good allocation problem. Where a public official is allocating her city's budget between internally and externally produced goods/services based upon their own absolute risk aversion. Figure 3 verifies that depending upon their level of risk aversion, the distribution of public goods between internal and externally produced goods can vary drammatically.
+
+```{r, echo = F}
+
+#The next two figures model the distribution of provisioned public goods according to rising absolute risk aversion and rising relative risk aversion. Assume \phi > \beta.
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Public Official
+curve( (1/(1 + (45/75)^((1-x)/x) * (.6/.4)^(1/x))), from = 0, to = 1, n = 100, type = "l",  col = "blue", lty = 1, main = ("Figure 3A: Share of Budget Distribution of Public Goods"), ylab = "Budget Share", ylim = c(0,1), xlab = "Absolute Risk Aversion")
+
+curve( (1/(1 + (75/45)^((1-x)/x) * (.4/.6)^(1/x))), from = 0, to = 1, n = 100, type = "l",  col = "red", lty = 1, add = TRUE)
+
+legend(1.05,1, c("Direct", "Contract \nOut"), lty=c(1,1), lwd=c(2,2), col=c("blue", "red"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+#######################
+
+curve( (1/(1 + (75/45)^((1-x)/x) * (.6/.4)^(1/x))), from = 0, to = 1, n = 100, type = "l",  col = "blue", lty = 1, main = ("Figure 3B: Share of Budget Distribution of Public Goods"), ylab = "Budget Share", ylim = c(0,1), xlab = "Absolute Risk Aversion")
+
+curve( (1/(1 + (45/75)^((1-x)/x) * (.4/.6)^(1/x))), from = 0, to = 1, n = 100, type = "l",  col = "red", lty = 1, add = TRUE)
+
+legend(1.05,1, c("Direct", "Contract \nOut"), lty=c(1,1), lwd=c(2,2), col=c("blue", "red"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+Figures 3A and 3B illustrate the power of the absolute risk aversion parameter. Given minor changes in the relative pice ratio, we get substantial changes to the distribution of publicly produced goods. Two facts emerge. At low levels of absolute risk aversion, agents will overwhelmingl prefer the cheapest service delivery option. However, as the degree of risk aversion  grows, our actors will increasingly diversify their portfolio. Intrigingly, one clear outcome emerges. As the level of risk aversion rises, cities will move away from internal production and seek out some separate third party. 
+
+To set this point clearly, we next illustrate the effect of the relative price ratio rising on the contracting decision below in Figure 4. One common theme emerges. As the price of direct production rises relative to external production, cities move away from internal proudciton. 
+
+We also see two clear distinct outcoms based upon the form of government. First, Mayors appear to be more eager to conract out than Managers.Second, Managers are far more sensitive to the price ratio than Mayors.
+
+
+```{r, echo = F}
+
+#Here we change the relative risk ratio. As p_g/p_q rises....
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Manager: Direct
+curve( (1/(1 + (x)^((1-.25)/.25) * (1)^(1/.25))), from = 0, to = 3, n = 100, type = "l",  col = "blue", lty = 1, main = ("Figure 5A: Share of Budget for Public Goods (RRR = 1)"), ylab = "Budget Share", ylim = c(0,1), xlab = "Price Ratio")
+
+#Manager: External
+curve( (1/(1 + (1/x)^((1-.25)/.25) * (1)^(1/.25))), from = 0, to = 3, n = 100, type = "l",  col = "blue", lty = 2, add = TRUE)
+
+#Mayor: Direct
+curve( (1/(1 + (x)^((1-.75)/.75) * (1)^(1/.75))), from = 0, to = 3, n = 100, type = "l",  col = "red", lty = 1, main = ("Share of Budget for External Goods"),  add = TRUE)
+
+#Mayor: External
+curve( (1/(1 + (1/x)^((1-.75)/.75) * (1)^(1/.75))), from = 0, to = 3, n = 100, type = "l",  col = "red", lty = 2, add = TRUE)
+
+legend(3.10,1, c("Manager \n(Direct)", "\nManager \n(External)", "\nMayor \n(Direct)" , "\nMayor \n(External)"), lty=c(1,2,1,2), lwd=c(2,2), col=c("blue", "blue", "red", "red"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+
+
+
+#Manager: Direct
+curve( (1/(1 + (x)^((1-.25)/.25) * (.6/.4)^(1/.25))), from = 0, to = 3, n = 100, type = "l",  col = "blue", lty = 1, main = ("Figure 5B: Share of Budget for Public Goods (RRR > 1)"), ylab = "Budget Share", ylim = c(0,1), xlab = "Price Ratio")
+
+#Manager: External
+curve( (1/(1 + (1/x)^((1-.25)/.25) * (.4/.6)^(1/.25))), from = 0, to = 3, n = 100, type = "l",  col = "blue", lty = 2, add = TRUE)
+
+#Mayor: Direct
+curve( (1/(1 + (x)^((1-.75)/.75) * (.6/.4)^(1/.75))), from = 0, to = 3, n = 100, type = "l",  col = "red", lty = 1, main = ("Share of Budget for External Goods"),  add = TRUE)
+
+#Mayor: External
+curve( (1/(1 + (1/x)^((1-.75)/.75) * (.4/.6)^(1/.75))), from = 0, to = 3, n = 100, type = "l",  col = "red", lty = 2, add = TRUE)
+
+legend(3.10,1, c("Manager \n(Direct)", "\nManager \n(External)", "\nMayor \n(Direct)" , "\nMayor \n(External)"), lty=c(1,2,1,2), lwd=c(2,2), col=c("blue", "blue", "red", "red"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+
+
+
+
+#Manager: Direct
+curve( (1/(1 + (x)^((1-.25)/.25) * (.4/.6)^(1/.25))), from = 0, to = 4, n = 100, type = "l",  col = "blue", lty = 1, main = ("Figure 5C: Share of Budget for Public Goods (RRR < 1)"), ylab = "Budget Share", ylim = c(0,1), xlab = "Price Ratio")
+
+#Manager: External
+curve( (1/(1 + (1/x)^((1-.25)/.25) * (.6/.4)^(1/.25))), from = 0, to = 4, n = 100, type = "l",  col = "blue", lty = 2, add = TRUE)
+
+#Mayor: Direct
+curve( (1/(1 + (x)^((1-.75)/.75) * (.4/.6)^(1/.75))), from = 0, to = 4, n = 100, type = "l",  col = "red", lty = 1, main = ("Share of Budget for External Goods"),  add = TRUE)
+
+#Mayor: External
+curve( (1/(1 + (1/x)^((1-.75)/.75) * (.6/.4)^(1/.75))), from = 0, to = 4, n = 100, type = "l",  col = "red", lty = 2, add = TRUE)
+
+legend(4.10,1, c("Manager \n(Direct)", "\nManager \n(External)", "\nMayor \n(Direct)" , "\nMayor \n(External)"), lty=c(1,2,1,2), lwd=c(2,2), col=c("blue", "blue", "red", "red"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+Figures 4A and 4B illustrate the interaction of the relative price ratio and the relative risk ratio. In figure 4A, we see that Mayors are far more sensitive to the price ratio than Managers, even with the relative risk ratio of $\beta/\phi) being greater than one.
+
+When the relative risk ratio is greater than one, Mayors are more likely to switch to external production faster than Managers. In fact, when the relative risk ratio is greater than one, both actors switch to external production quite fast. On the contrary, when the rrr is less than one, the relative price ratio becomes nearly irrelevant to Mayors. However, Managers still move into external prodcution much quicker.
+
+##Mapping Demand
+
+Now, let's map the demand curves for direct and indirect public goods. This will help us explain how the characteristics of a specific service move Mayors and City Managers toward a particular provisioning choice. Somewhat surprisingly, the choice is quite clear. Over the majority of the range of the relative risk ratio ($\frac{\beta}{\phi}$). As internal production becomes increasingly risky, the likelihood of shifting away from internal production rises, but both officials only alter course at very high levels of relative risk - i.e.$\beta$ grows large.
+
+```{r, echo = F}
+
+#Here we change the relative risk ratio, equal to beta/phi.
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Manager: Direct
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * (x)^(1/.25))), from = 0, to = 4, n = 100, type = "l",  col = "blue", lty = 1, main = ("Figure 4: Switching Threshold due to Relative Risk \nwith Lower Direct Costs"), ylab = "Spending on Public Goods", ylim = c(0,10), xlab = "Relative Risk Ratio")
+
+#Manager: External
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * (1/x)^(1/.25))), from = 0, to = 4, n = 100, type = "l",  col = "blue", lty = 2, add = TRUE)
+
+#Mayor: Direct
+curve( (350/45)*(1/(1 + (45/75)^((1-.75)/.75) * (x)^(1/.75))), from = 0, to = 4, n = 100, type = "l",  col = "red", lty = 1, add = TRUE)
+
+#Mayor: External
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * (1/x)^(1/.75))), from = 0, to = 4, n = 100, type = "l",  col = "red", lty = 2, add = TRUE)
+
+legend(4.1,12, c("Manager \n(Direct)", "\nManager \n(External)", "\nMayor \n(Direct)", "\nMayor \n(External)"), lty=c(1,2,1,2), lwd=c(2,2), col=c("blue", "blue", "red", "red"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+Figure 4 illustrates the changing distribution of provisioned public goods. As $\beta$ rises, both actors shift the distrbition away from internal production and toward external production. Managers begin chaging that distribuiton immediately with risk. Mayors, on the other hand, appear less concerned with a rising relative risk ratio so long as it is below one. As it begins to approacch and immediately exceed one, Mayors move very quickly toward a portfolio with more external production.
+
+
+```{r, echo = F}
+
+#Here we change the relative risk ratio, equal to beta/phi.
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Manager: Direct
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * (x)^(1/.25))), from = 0, to = 4, n = 100, type = "l",  col = "blue", lty = 1, main = ("Figure 4: Switching Threshold due to Relative Risk \nwith Higher Direct Costs"), ylab = "Spending on Public Goods", ylim = c(0,10), xlab = "Relative Risk Ratio")
+
+#Manager: External
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * (1/x)^(1/.25))), from = 0, to = 4, n = 100, type = "l",  col = "blue", lty = 2, add = TRUE)
+
+#Mayor: Direct
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * (x)^(1/.75))), from = 0, to = 4, n = 100, type = "l",  col = "red", lty = 1, add = TRUE)
+
+#Mayor: External
+curve( (350/45)*(1/(1 + (45/75)^((1-.75)/.75) * (1/x)^(1/.75))), from = 0, to = 4, n = 100, type = "l",  col = "red", lty = 2, add = TRUE)
+
+legend(4.1,12, c("Manager \n(Direct)", "\nManager \n(External)", "\nMayor \n(Direct)", "\nMayor \n(External)"), lty=c(1,2,1,2), lwd=c(2,2), col=c("blue", "blue", "red", "red"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+
+```{r, echo = F}
+#Here we change the relative price ratio, p_g/p_q.
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Manager: Direct
+curve( (350/45)*(1/(1 + (x)^((1-.25)/.25) * (1)^(1/.25))), from = 0, to = 5, n = 100, type = "l",  col = "blue", lty = 1, main = ("Figure 6: Switching Threshold due to Relative Prices \nwith Higher Direct Costs"), ylab = "Spending on Public Goods", ylim = c(0,10), xlab = "Relative Price Ratio")
+
+#Manager: External
+curve( (350/75)*(1/(1 + (1/x)^((1-.25)/.25) * (1)^(1/.25))), from = 0, to = 5, n = 100, type = "l",  col = "blue", lty = 2, add = TRUE)
+
+#Mayor: Direct
+curve( (350/45)*(1/(1 + (x)^((1-.75)/.75) * (1)^(1/.75))), from = 0, to = 5, n = 100, type = "l",  col = "red", lty = 1, add = TRUE)
+
+#Mayor: External
+curve( (350/75)*(1/(1 + (1/x)^((1-.75)/.75) * (1)^(1/.75))), from = 0, to = 5, n = 100, type = "l",  col = "red", lty = 2, add = TRUE)
+
+legend(5.1,10, c("Mayor \n(Direct)", "\nMayor \n(External)", "\nManager \n(Direct)", "\nManager \n(External)"), lty=c(1,2,1,2), lwd=c(2,2), col=c("red", "red", "blue", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+Managers are far more sensitive to changes in relative prices. Mayors are largely insensitive to the matter. As the internal prices approach a doubling of local external costs, Managers move toward nearly 100% external production for that specific good or service. Mayors, on the other hand, will maintain some amount of spending on internally produced goods even if the price ration exeeds four. Only at a price ratio approaching 4.5 times that of external production, will Mayors begin to provide the majority of their provision of this good or service externally. 
+
+The next challenge is to model the effect of transaction costs. First, we explore a City Manager's relationship to transaction costs.
+
+```{r, echo = F}
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Manager with increasing asset specificity
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * (x*1.2)^(1/.25))), from = 1, to = 5, n = 100, type = "l", xlab = "RRA", ylab = "Spending on Public Goods", ylim = c(0,10), col = "red", main = "Figure 6: Impacts of Transaction Costs on Contract Decision \n for Council-Manager Cities", lty = 1)
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * (1/x*1.2)^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "red", add = TRUE, lty = 2)
+
+#Manager with increasing measurement difficulty
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * (x*0.8)^(1/.25))), from = 1, to = 5, n = 100, type = "l", xlab = "RRA", ylab = "Expected Payoff from G", ylim = c(0,30), col = "blue", lty = 1, add = TRUE)
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * (1/x*0.8)^(1/.25))), from = 1, to = 5, n = 100, type = "l", xlab = "RRA", ylab = "Expected Payoff from G", col = "blue", add = TRUE, lty = 2)
+
+#Manager under relative risk.
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * (x)^(1/.25))), from = 1, to = 5, n = 100, type = "l", xlab = "RRA", ylab = "Expected Payoff from G", ylim = c(0,30), col = "black", lty = 1, add = TRUE)
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * (1/x)^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "black", add = TRUE, lty = 2)
+
+legend(5.05,12, c("CM_AS \nInternal", "\nCM_AS \nExternal", "\nCM_MD \nInternal", "\nCM_MD \nExternal", "CM \nInternal", "CM \nExternal"), lty=c(1,2,1,2,1,2), lwd=c(2,2,2,2,2,2), col=c("red", "red", "blue", "blue", "black", "black"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+Figure 6 illustrates the decisive role played by transaction risks in determining the distribution between internal and externally produced goods. As the risks of the transaction cost increase, managers spend nearly all of their dollars on external production of that good or service. At relatively low levels of risk (i.e. < 2), managers spend a great deal more on a particular good/service than when the RR exceeds three. Finally, managers spend much more on directly produced goods and services that are harder to measure than goods that are highly asset specific.
+
+```{r, echo = F}
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Mayor with increasing asset specificity
+curve( (350/45)*(1/(1 + (45/75)^((1-.75)/.75) * (x*1.2)^(1/.75))), from = 1, to = 5, n = 100, type = "l", xlab = "RRA", ylab = "Spending on Public Goods", ylim = c(0,9), col = "red", main = "Figure 7: Impacts of Transaction Costs on Contract Decision \n for Mayor-Council Cities", lty = 1)
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * (1/x*1.2)^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", add = TRUE, lty = 2)
+
+#Mayor with increasing measurement difficulty
+curve( (350/45)*(1/(1+ (45/75)^((1-.75)/.75) * (x*0.8)^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "blue", lty = 1, add = TRUE)
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * (1/x*0.8)^(1/.75))), from = 1, to = 5, n = 100, type = "l",  col = "blue", add = TRUE, lty = 2)
+
+#Mayor under relative risk.
+curve( (350/45)*(1/(1 + (45/75)^((1-.75)/.75) * (x)^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "black", lty = 1, add = TRUE)
+curve((350/75)*(1/(1+ (75/45)^((1-.75)/.75) * (1/x)^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "black", add = TRUE, lty = 2)
+
+legend(5.15,10, c("MC_AS \nInternal", "\nMC_AS \nExternal", "\nMC_MD \nInternal", "\nMC_MD \nExternal", "MC \nInternal", "MC \nExternal"), lty=c(1,2,1,2,1,2), lwd=c(2,2,2,2,2,2), col=c("red", "red", "blue", "blue", "black", "black"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+Figure 7 represents the interaction of transaction risk and Mayor-Council cities. Unlike managers, Mayors do not appear to see this provisioning decisions as a zero-sum game. Even when risks are remarkable high, mayors will still spend substantial dollars on directly produced goods. 
+
+Now, let's look at the two sources of transaction risk separately by form of government. Figures 8 and 9 compare the effects of transaction risk on forms of government. In general, we see that local governments tend to spend more on measureably complex goods and services, but less on highly asset specific goods. The demand for internal production of goods that are diffuclt to measure is higher overall. There does appear to be a spending limit on external goods and services, eventhough direct production is declining. As transacction risks increase, absolute spending on public goods actually decreases.
+
+
+```{r, echo = F}
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#need to scale beta so it cannot take negative values. The maximum value would be 1.5*5 + 3*25 = 
+
+#1.5*5 + 3*25 = 82.5
+
+
+
+#Mayor with increasing asset specificity
+curve( (350/45)*(1/(1 + (45/75)^((1-.75)/.75) * (( 1.5*x + 3*(x)^2)/(1.5*3.11 + 3*(3.11)^2))^(1/.75))), from = 1, to = 5, n = 100, type = "l", xlab = "RRA", ylab = "Spending on Public Goods", ylim = c(0,9), col = "red", main = "Figure 9: Impacts of Transaction Costs on Contract Decision \n for Mayor-Council Cities", lty = 1)
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * ((1.5*3.11 + 3*(3.11)^2 )/(1.5*x + 3*(x)^2 ))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", add = TRUE, lty = 2)
+
+#Mayor with increasing measurement difficulty
+curve( (350/45)*(1/(1 + (45/75)^((1-.75)/.75) * ((82.5 - 1.5*x - 3*x^2)/( 1.5*2.65 + 3*2.65^2))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "blue", add = TRUE, lty = 1)
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * (( 1.5*2.65 + 3*2.65^2)/( 1.5*x + 3*x^2))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "blue", add = TRUE, lty = 2)
+
+legend(5.15,10, c("MC_AS \nInternal", "\nMC_AS \nExternal", "\nMC_MD \nInternal", "\nMC_MD \nExternal" ), lty=c(1,2,1,2,1,2), lwd=c(2,2,2,2,2,2), col=c("red", "red", "blue", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+#Manager with increasing asset specificity
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * ((1.5*x + 3*(x)^2)/(1.5*3.11 + 3*(3.11)^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "black", main = "Figure 9: Impacts of Transaction Costs on Contract Decision \n for Council-Manager Cities", xlab = "RRA", ylab = "Spending on Public Goods", ylim = c(0,9), lty = 1)
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((1.5*3.11 + 3*(3.11)^2 )/(1.5*x + 3*(x)^2 ))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "black", add = TRUE, lty = 2)
+
+#Manager with increasing measurement difficulty
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * ((82.5 - 1.5*x - 3*x^2)/( 1.5*2.65 + 3*2.65^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "green", add = TRUE, lty = 1)
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((1.5*2.65 + 3*2.65^2)/( 1.5*x + 3*x^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "green", add = TRUE, lty = 2)
+
+legend(5.15,10, c("CM_AS \nInternal", "\nCM_AS \nExternal", "\nCM_MD \nInternal", "\nCM_MD \nExternal" ), lty=c(1,2,1,2,1,2), lwd=c(2,2,2,2,2,2), col=c("black", "black", "green", "green"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+Now, let's quickly compare the two.
+
+
+```{r}
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Mayor with increasing asset specificity
+curve( (350/45)*(1/(1 + (45/75)^((1-.75)/.75) * ((1.5*x + 3*(x)^2 )/(1.5*3.11 + 3*(3.11)^2 ))^(1/.75))), from = 1, to = 5, n = 100, type = "l", xlab = "Asset Specificity", ylab = "Spending on Public Goods", ylim = c(0,9), col = "red", main = "Figure 3: Impacts of Asset Specificity on Contract Decision \n by Form of Government", lty = 1)
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * ((1.5*3.11 + 3*(3.11)^2)/(1.5*x + 3*(x)^2 ))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", add = TRUE, lty = 2)
+
+#Manager with increasing asset specificity
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * ((1.5*x + 3*(x)^2 )/(1.5*3.11 + 3*(3.11)^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", lty = 1, add = TRUE)
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((1.5*3.11 + 3*(3.11)^2 )/(1.5*x + 3*(x)^2 ))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", add = TRUE, lty = 2)
+
+legend(5.15,10, c("MC \nInternal", "\nMC \nExternal", "\nCM \nInternal", "\nCM \nExternal" ), lty=c(1,2,1,2,1,2), lwd=c(2,2,2,2,2,2), col=c("red", "red", "blue", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+
+```
+
+```{r}
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+#Mayor with increasing measurement difficulty
+curve( (350/45)*(1/(1 + (45/75)^((1-.75)/.75) * ((82.5 - 1.5*x - 3*x^2)/(1.5*2.65 + 3*2.65^2))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", main = "Figure 4: Impacts of Measurement Difficulty on Contract Decision \n by Form of Government", ylab = "Spending on Public Goods", xlab = "Measurement Difficulty", lty = 1, ylim = c(0,8))
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * (( 1.5*2.65 + 3*2.65^2)/( 1.5*x + 3*x^2))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", add = TRUE, lty = 2)
+
+#Manager with increasing measurement difficulty
+curve( (350/45)*(1/(1 + (45/75)^((1-.25)/.25) * ((82.5 - 1.5*x - 3*x^2)/( 1.5*2.65 + 3*2.65^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", add = TRUE, lty = 1)
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * (( 1.5*2.65 + 3*2.65^2)/(1.5*x + 3*x^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", add = TRUE, lty = 2)
+
+legend(5.15,8.5, c("MC \nInternal", "\nMC \nExternal", "\nCM \nInternal", "\nCM \nExternal" ), lty=c(1,2,1,2,1,2), lwd=c(2,2,2,2,2,2), col=c("red", "red", "blue", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+
+
+```
+
+We've told a complete story at this point. The missing piece now is to explain the external contracting decision and compare that across government forms.
+
+Here, we are only interested in the demand curves for externally produced goods. 
+
+```{r}
+par(mar=par()$mar+c(0,0,2,5.5))
+
+
+#Asset Specificity: Mayor
+
+#Other Gov.
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * ((3*x + 4*(x)^2)/(2*3.11 + 4*(3.11)^2 ))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", lty = 1, main = "Figure 12: Demand for Externally Produced Asset Specific Goods \nby Service Delivery Mechanism", ylab = "Spending on Public Goods", xlab = "Asset Specificity", ylim = c(0,8))
+
+#For Profit
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * ((1*x + 5*(x)^2 )/(2*3.11 + 4*(3.11)^2  ))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", lty = 2, add = TRUE)
+
+
+#Nonprofit
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * ((4*x + 4.5*(x)^2 )/(2*3.11 + 4*(3.11)^2 ))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", lty = 3, add = TRUE)
+
+#Manager
+
+#Other Gov.
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((3*x + 4*(x)^2 )/(2*3.11 + 4*(3.11)^2 ))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", lty = 1, add = TRUE)
+
+#For Profit
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((1*x + 5*(x)^2 )/(2*3.11 + 4*(3.11)^2  ))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", lty = 2, add = TRUE)
+
+
+#Nonprofit
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((4*x + 4.5*(x)^2 )/(2*3.11 + 4*(3.11)^2  ))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", lty = 3, add = TRUE)
+
+
+legend(5.15,7.5, c("Mayor", "Manager", "Other Gov.", "For Profit", "Nonprofit"), lty=c(1,1,1,2,3), lwd=c(2,2,2,2,2,2), col=c("red", "blue","black", "black", "black"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+High asset specificity leads to Mayors preferring nonprofits. Relatively, they also have the largest aversion to for profits at high levels of risk.
+
+```{r}
+
+par(mar=par()$mar+c(0,0,2,5.5))
+
+
+#Measurement Difficulty: Mayor
+
+#Other Gov.
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * ((1*x + 3.5*x^2)/(82.5 - 1*2.65 - 3.5*2.65^2))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", lty = 1, main = "Figure 13: Demand for Externally Produced Difficult to Measure \nPublic Goods by Service Delivery Mechanism", ylab = "Spending on Public Goods", xlab = "Measurement Difficulty", ylim = c(0,8))
+
+#For Profit
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * ((2.5*x + 4*x^2)/(82.5 - 1*2.65 - 3.5*2.65^2))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", lty = 2, add = TRUE)
+
+#Nonprofit
+curve( (350/75)*(1/(1 + (75/45)^((1-.75)/.75) * ((2*x + 3*x^2)/(82.5 - 1*2.65 - 3.5*2.65^2))^(1/.75))), from = 1, to = 5, n = 100, type = "l", col = "red", lty = 3, add = TRUE)
+
+#Measurement Difficulty: Manager
+
+#Other Gov. 1 , 3.5
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((1*x + 3.5*x^2)/(82.5 - 1*2.65 - 3.5*2.65^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", lty = 1, add = TRUE)
+
+#For Profit, 2.5, 4
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((2.5*x + 4*x^2)/(82.5 - 1*2.65 - 3.5*2.65^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", lty = 2, add = TRUE)
+
+#Nonprofit: 2,3
+curve( (350/75)*(1/(1 + (75/45)^((1-.25)/.25) * ((2*x + 3*x^2)/(82.5 - 1*2.65 - 3.5*2.65^2))^(1/.25))), from = 1, to = 5, n = 100, type = "l", col = "blue", lty = 3, add = TRUE)
+
+legend(5.15,7.5, c("Mayor", "Manager", "Other Gov.", "For Profit", "Nonprofit"), lty=c(1,1,1,2,3), lwd=c(2,2,2,2,2,2), col=c("red", "blue","black", "black", "black"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
