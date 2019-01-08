@@ -1,0 +1,290 @@
+---
+title: "Notes on a Political Market"
+header-includes:
+- \usepackage{morefloats}
+- \usepackage{graphicx}
+- \usepackage{float}
+- \usepackage{amsmath}
+- \usepackage{amssymb}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{rotating}
+- \usepackage{makecell}
+- \usepackage[labelfont=bf]{caption}
+- \usepackage[format=hang,font={bf}]{caption}
+date: "Spring 2018"
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    fig_caption: yes
+    fig_crop: no
+    highlight: haddock
+    keep_tex: yes
+    number_sections: yes
+subtitle: Working Draft, Jan. 30, 2018
+urlcolor: blue
+---
+
+The purpose of this document is to help organize the data analysis section of the political market paper with Jered Carr.
+
+#Method
+The purpose of this section is to layout the theoretical model that will eventually become the econometric model in the paper.
+
+Here's the basic idea. We a principal actor for a local government (a Mayor or a City Manager) that must ultimately decide how to provide specific local services. We want to model this using the political market framework. Iin doing so, our hope is that it will help us formally derive propositions to empirically test. 
+
+\begin{align}
+Q_i,j = \alpha_i,j + \beta_1*P_i,j + \beta_2
+\end{align}
+
+
+#Data
+
+```{r, echo = F}
+#Read in the original data file.
+data <- read.csv("C:/Users/dwest/Documents/Drews Stuff/Political Market/originaldata_cleaned.csv")
+
+bp_data <- read.csv("~/Drews Stuff/Political Market/Brown and Potoski (2003) - Service classification.csv")
+bp_data$asset_bp2 <- (bp_data$asset_bp)^2
+bp_data$measure_bp2 <- (bp_data$measure_bp)^2
+
+data2 <- merge(data, bp_data, by = "service")
+data <- data2
+
+
+#Decide which variables are necessary and subset them.
+names(data)
+data$district_dum <- ifelse(data$district > 0, 1, 0)
+
+Kwon <- subset(data, select = c("party", "atlarge_1", "ufog", "manager", "ratio_fte", "homeown", "inc_mh", "asset_bp", "asset_bp2", "measure_bp", "measure_bp2", "pop_00", "os_rev", "p_white", "estotal", "n_npos_1", "umetro", "direct", "joint", "og", "profit", "notprofit", "district_dum", "unionde", "salaries", "n_gov97", "com_b", "com_c", "com_d", "com_e", "com_f","service","upo"))
+
+names(Kwon)
+```
+
+
+```{r, echo = F}
+#install.packages("dummies")
+library(dummies)
+Kwon3 <- Kwon
+#Kwon3 <- dummy.data.frame(Kwon, sep = ",")
+names(Kwon3)
+Kwon3$mayor <- ifelse(Kwon$ufog == "Mayor-Council", 1, 0)
+Kwon3$manager <- ifelse(Kwon$manager == "Yes", 1, 0)
+Kwon3$urban <- ifelse(Kwon$umetro == "Central", 1, 0)
+Kwon3$othergov <- Kwon$og
+
+table(Kwon3$mayor)
+
+Kwon4 <- subset(Kwon3, select = c("party", "atlarge_1", "mayor", "manager", "ratio_fte", "homeown", "inc_mh", "asset_bp", "asset_bp2", "measure_bp", "measure_bp2", "pop_00", "os_rev", "p_white", "estotal", "n_npos_1", "urban", "direct", "joint", "othergov", "profit", "notprofit", "district_dum", "unionde", "salaries", "n_gov97", "com_b", "com_c", "com_d", "com_e", "com_f", "service","upo" ))
+
+Kwon4$os_rev <- Kwon4$os_rev*100
+summary(Kwon4$os_rev)
+Kwon4$salaries <- Kwon4$salaries*100
+summary(Kwon4$salaries)
+library(stargazer)
+stargazer(Kwon4, type = "text", title = "Figure 1: Descriptive Statistics", 
+          digits=2, median = TRUE, out = "table1.txt")
+
+``` 
+
+```{r, echo = F}
+
+Kwon5 <- subset(Kwon4, select=c(os_rev, ratio_fte, unionde, salaries, estotal,n_npos_1, n_gov97, asset_bp, asset_bp2, measure_bp, measure_bp2, party, atlarge_1, mayor, manager, com_b, com_c, com_d, com_e, com_f, direct, joint, othergov, profit, notprofit, service, upo))
+
+library(corrplot)
+M <- cor(Kwon5, method="pearson", use = "complete.obs")
+corrplot(M, method = "circle",order = "FPC", addrect = 2)
+
+stargazer(Kwon5,type = "html", median = T, out = "Descriptive Statistics.htm")
+```
+
+This tells me the only potentially problematic variable is the share of employees that are union members.
+```{r, echo = F}
+
+#ln_klf <- glm(com_b ~ party + atlarge_1 + mayor +  log(ratio_fte) + log(inc_mh) +  log(asset_bp) + log(measure_bp) + log(pop_00) + log(os_rev) + log(estotal) + log(n_npos_1) + log(n_gov97) , family = binomial(link = "logit"), data = Kwon4, na.action = na.omit)
+
+#klf_base1 <- glm(com_b ~ os_rev + ratio_fte + unionde + salaries + log(estotal) + log(n_npos_1) + log(n_gov97) , family = binomial(link = "logit"), data = Kwon4, na.action = na.omit)
+
+#klf_base2 <- glm(com_b ~ party + atlarge_1 + mayor + ratio_fte + asset_bp + asset_bp*asset_bp + measure_bp + measure_bp*measure_bp + log(pop_00) + os_rev + log(estotal) + log(n_npos_1) + log(n_gov97) + mayor:party + mayor:atlarge_1 + mayor:asset_bp + mayor:asset_bp*asset_bp + mayor:measure_bp + mayor:measure_bp*measure_bp + + mayor:log(estotal) + mayor:log(n_npos_1) + mayor:log(n_gov97)  -1 , family = binomial(link = "logit"), data = Kwon4, na.action = na.omit)
+
+#klf_base3 <- glm(com_b ~ party + atlarge_1 + mayor + ratio_fte + asset_bp + asset_bp*asset_bp + measure_bp + measure_bp*measure_bp + log(pop_00) + os_rev + log(estotal) + log(n_npos_1) + log(n_gov97) + mayor:party + mayor:atlarge_1 + mayor:asset_bp + mayor:asset_bp*asset_bp + mayor:measure_bp + mayor:measure_bp*measure_bp + + mayor:log(estotal) + mayor:log(n_npos_1) + mayor:log(n_gov97) + mayor:log(estotal):asset_bp   -1 , family = binomial(link = "logit"), data = Kwon4, na.action = na.omit)
+
+
+CWB_base <- glm(com_b ~ os_rev + ratio_fte + salaries + estotal + n_npos_1 + asset_bp + asset_bp:asset_bp + measure_bp + measure_bp:measure_bp + party + atlarge_1 + mayor, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+#CWB_1 <- glm(com_b ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+#Note here we are using a different dependent variable than Kwon et al.
+
+CWB_2b <- glm(direct ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2c <- glm(joint ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2d <- glm(othergov ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2e <- glm(profit ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2f <- glm(notprofit ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+stargazer(CWB_2b,CWB_2c, CWB_2d, CWB_2e, CWB_2f,  type = "text")
+```
+
+```{r}
+
+#Now we add in the interaction terms. Recall, our model suggests two layers. First, interact FOG and transaction risks. Second, interact those same factors but with the market competition factor.
+
+sCWB_2 <- glm(com_b ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor - 1, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2b <- glm(com_b ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor + mayor*asset_bp + mayor*measure_bp + mayor*party + mayor*atlarge_1 + mayor*log(estotal)- 1, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2c <- glm(com_c ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor +  mayor*asset_bp + mayor*measure_bp + mayor*party + mayor*atlarge_1 + mayor*log(estotal)- 1, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2d <- glm(com_d ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor +  mayor*asset_bp + mayor*measure_bp + mayor*party + mayor*atlarge_1 + mayor*log(estotal)- 1, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2e <- glm(com_e ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor +  mayor*asset_bp + mayor*measure_bp + mayor*party + mayor*atlarge_1 + mayor*log(estotal)- 1, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+CWB_2f <- glm(com_f ~ os_rev + ratio_fte + salaries + log(estotal) + log(n_npos_1) + asset_bp + asset_bp^2 + measure_bp + measure_bp^2 + party + atlarge_1 + mayor + mayor*asset_bp + mayor*measure_bp + mayor*party + mayor*atlarge_1 + mayor*log(estotal)- 1, family=binomial(link = "logit"), data = Kwon5, na.action = na.omit)
+
+
+stargazer(CWB_2, CWB_2b, CWB_2c, CWB_2d, CWB_2e, CWB_2f, type = "text")
+```
+
+
+  
+#Predicted Effects of Risk: Can we replicate our payoff curves?
+
+```{r, echo = F}
+library("margins")
+m1 <- margins(CWB_2b)
+m2 <- margins(CWB_2c)
+m3 <- margins(CWB_2d)
+m4 <- margins(CWB_2e)
+m5 <- margins(CWB_2f)
+
+```
+
+```{r, echo = T}
+summary(m1)
+summary(m2)
+summary(m3)
+summary(m4)
+summary(m5)
+```
+
+
+
+Here we see that form of government does matter in the initial production/provision decision, albeit, on average, to a smaller extent than model 1 suggests. The average marginal effect (AME) is significant and positive. On average, the Mayor-Council form of government is roughly 11% more likely to engage in direct service production than the Council-Manager form of government. Now, let's turn to impacts of our global risk measures - political institutions - and our relative risk measures - asset specificity and measurement difficulty.
+
+Now, let's see if we can directly test for differences in the AMEs based on form of government.
+
+```{r}
+m <- margins(CWB_2b, at = list(mayor = 0:1))
+summary(m)
+```
+
+We see sizeable differences based on form of government. Let's to some t-tests to clarify the statistical significance. Recall, the difference of means test is the difference in the means divided by the sum of the standard errors.
+
+#Difference of AMEs by FOG
+
+```{r, echo = F}
+#Only use this if the dependent variable is com_b.
+
+#Asset Specificity
+#(0.0212 - -0.0050) = 0.0262  #Difference of Means
+#(0.0266^2 + 0.0092^2)/2 #Mean Squared Error
+#sqrt((2*0.0003961)/8028)  #Sample variance
+#0.0262/0.0003141331   # t-vale; it's significant which we should expect given n.
+```
+
+```{r, echo= F}
+
+#Measurement Difficulty
+```
+
+```{r, echo = F}
+
+#At Large
+```
+
+```{r, echo = F}
+
+#Party
+
+```
+
+These are important. The AMEs for our four key variables are all statistically significantly different when the form of government varies. This finding alone tells us that form of government plays a critical role in shaping the contracting decisions of public officials. In general, these results suggest that as asset specificity and meaurement difficulty (viewed together as relative risk) increase, the AME on the probability of a Mayor-Council producing that good or service directly increases. These effects are sizeable. But, by far the largest factors are political institutions - those factors we view as shaping absolute risk. However, these institutions have widely divergent impacts. At-large elections push Mayor-Council governments to produce more services directly (suggesting it increases the level of\alpha), party-based elections tend to produce the opposite result, pushing public officials to turn to others to produce the public service (be it another government, the private sector, or the non-profit sector). Now, let's visualize these differences.
+
+
+#Predicted Effects:
+
+```{r, echo = F}
+
+par(xpd=F, mar=par()$mar+c(0,0,2,6.5))
+cplot(CWB_2b, x = "asset_bp", what = "prediction", main = "Figure 9: Direct Production with Asset Specificity, \nby Form of Government", data = Kwon5[Kwon5$mayor == 1,], col = "red", xlab = "Asset Specificity", se.type = "none", se.col = "red", se.lty = 2, ylim = c(0,1))
+cplot(CWB_2b, x = "asset_bp", what = "prediction", data = Kwon5[Kwon5$mayor == 0,], col = "blue", draw = "add", se.type = "none", se.col = "blue", se.lty = 2)
+legend(4.25,0.5, c("Mayor", "City Manager"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+```
+
+```{r, echo = F}
+
+par(xpd=F, mar=par()$mar+c(0,0,2,6.5))
+cplot(CWB_2b, x = "measure_bp", what = "prediction", main = "Figure 9: Direct Production with Asset Specificity, \nby Form of Government", data = Kwon5[Kwon5$mayor == 1,], col = "red", xlab = "Measurement Difficulty", se.type = "none", se.col = "red", se.lty = 2, ylim = c(0,1))
+cplot(CWB_2b, x = "measure_bp", what = "prediction", data = Kwon5[Kwon5$mayor == 0,], col = "blue", draw = "add", se.type = "none", se.col = "blue", se.lty = 2)
+legend(4.25,0.5, c("Mayor", "City Manager"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+```
+
+```{r, echo = F}
+
+par(xpd=F, mar=par()$mar+c(0,0,2,6.5))
+cplot(CWB_2b, x = "ratio_fte", what = "prediction", main = "Figure 10: Direct Production under High Risk , \nby Party", data = Kwon5[Kwon5$mayor == 1,], col = "red", xlab = "Public Employees per ", se.type = "none", se.col = "red", se.lty = 2)
+cplot(CWB_2b, x = "ratio_fte", what = "prediction", data = Kwon5[Kwon5$mayor == 0,], col = "blue", draw = "add", se.type = "none", se.col = "blue", se.lty = 2)
+legend(8.1,.25, c("Mayor", "City Manager"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+```{r, echo = F}
+
+par(xpd=F, mar=par()$mar+c(0,0,2,6.5))
+cplot(CWB_2b, x = "estotal", what = "prediction", main = "Figure 10: Direct Production under High Risk , \nby Party", data = Kwon5[Kwon5$mayor == 1,], col = "red", xlab = "Total Establishments ", se.type = "none", se.col = "red", se.lty = 2)
+cplot(CWB_2b, x = "estotal", what = "prediction", data = Kwon5[Kwon5$mayor == 0,], col = "blue", draw = "add", se.type = "none", se.col = "blue", se.lty = 2)
+legend(4.25,0.5, c("Mayor", "City Manager"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+```{r, echo = F}
+
+par(xpd=F, mar=par()$mar+c(0,0,2,6.5))
+cplot(CWB_2b, x = "n_npos_1", what = "prediction", main = "Figure 10: Direct Production under High Risk , \nby Party", data = Kwon5[Kwon5$mayor == 1,], col = "red", xlab = "Nonprofits per Capita \n(per 10,000) ", se.type = "none", se.col = "red", se.lty = 2)
+cplot(CWB_2b, x = "n_npos_1", what = "prediction", data = Kwon5[Kwon5$mayor == 0,], col = "blue", draw = "add", se.type = "none", se.col = "blue", se.lty = 2)
+legend(4.25,0.5, c("Mayor", "City Manager"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+```{r, echo = F}
+
+par(xpd=F, mar=par()$mar+c(0,0,2,6.5))
+cplot(CWB_2b, x = "n_gov97", what = "prediction", main = "Figure 10: Direct Production under High Risk , \nby Party", data = Kwon5[Kwon5$mayor == 1,], col = "red", xlab = "Local Gov'ts per County", se.type = "none", se.col = "red", se.lty = 2, ylim = c(0,.3))
+cplot(CWB_2b, x = "n_gov97", what = "prediction", data = Kwon5[Kwon5$mayor == 0,], col = "blue", draw = "add", se.type = "none", se.col = "blue", se.lty = 2)
+legend(0.25,400, c("Mayor", "City Manager"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+```{r, echo = F}
+
+par(xpd=F, mar=par()$mar+c(0,0,2,6.5))
+cplot(CWB_2b, x = "party", what = "prediction", main = "Figure 10: Direct Production under High Risk , \nby Party", data = Kwon5[Kwon5$mayor == 1,], col = "red", xlab = "Total Establishments by County", se.type = "none", se.col = "red", se.lty = 2)
+cplot(CWB_2b, x = "party", what = "prediction", data = Kwon5[Kwon5$mayor == 0,], col = "blue", draw = "add", se.type = "none", se.col = "blue", se.lty = 2)
+legend(4.25,0.5, c("Mayor", "City Manager"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+```{r, echo = F}
+
+par(xpd=F, mar=par()$mar+c(0,0,2,6.5))
+cplot(CWB_2b, x = "atlarge_1", what = "prediction", main = "Figure 10: Direct Production under High Risk , \nby Party", data = Kwon5[Kwon5$mayor == 1,], col = "red", xlab = "Elected at Large", se.type = "none", se.col = "red", se.lty = 2, ylim = c(0,.40))
+cplot(CWB_2b, x = "atlarge_1", what = "prediction", data = Kwon5[Kwon5$mayor == 0,], col = "blue", draw = "add", se.type = "none", se.col = "blue", se.lty = 2)
+legend(4.25,0.5, c("Mayor", "City Manager"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"),inset=c(1,0), xpd=TRUE, bty = "n")
+
+```
+
+
